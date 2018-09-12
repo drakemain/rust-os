@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["drakemain <demain1990@gmail.com>"]
 
 [dependencies]
+bootloader_precompiled = "^0.2.0"
 
 [profile.dev]
 
