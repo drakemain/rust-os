@@ -6,7 +6,5 @@ authors = ["drakemain <demain1990@gmail.com>"]
 [dependencies]
 
 [profile.dev]
-panic = "abort"
 
 [profile.release]
-panic = "abort"
