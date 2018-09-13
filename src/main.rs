@@ -16,12 +16,15 @@ pub extern "C" fn _start() -> ! {
     for i in 0..100 {
         println!("Hello World! {}", i);
     }
+    panic!("This is a panic!");
 
     loop {}
 }
 
 #[panic_handler]
 #[no_mangle]
-pub fn panic(_info: &PanicInfo) -> ! {
+pub fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
+
     loop {}
 }
