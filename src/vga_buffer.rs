@@ -1,5 +1,6 @@
 use volatile::Volatile;
 use core::fmt;
+use spin::Mutex;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -21,6 +22,14 @@ pub enum Color {
     Pink = 13,
     Yellow = 14,
     White = 15,
+}
+
+lazy_static! {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    });
 }
 
 pub struct Writer {
@@ -90,20 +99,6 @@ impl Writer {
     }
 }
 
-pub fn print_something() {
-    use core::fmt::Write;
-
-    let mut writer = Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    };
-
-    writer.write_byte(b'H');
-    writer.write_string("ello!\n ");
-    write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct ColorCode(u8);
 
@@ -125,4 +120,19 @@ const BUFFER_WIDTH: usize = 80;
 
 struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
+}
+
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::print(format_args!($($arg)*)));
+}
+
+macro_rules! println {
+    () => (print!("\n"));
+    ($fmt:expr) => (print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
+}
+
+pub fn print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
 }
