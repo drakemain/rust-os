@@ -13,6 +13,7 @@ extern crate array_init;
 extern crate uart_16550;
 
 use core::panic::PanicInfo;
+extern crate x86_64;
 
 #[macro_use]
 mod vga_buffer;
@@ -27,7 +28,17 @@ pub extern "C" fn _start() -> ! {
     }
     
     serial_println!("Hello Host{}", "!");
+    
+    unsafe { exit_qemu(); }
+
     loop {}
+}
+
+pub unsafe fn exit_qemu() {
+    use x86_64::instructions::port::Port;
+
+    let mut port = Port::<u32>::new(0xf4);
+    port.write(0);
 }
 
 #[cfg(not(test))]
@@ -38,3 +49,4 @@ pub fn panic(info: &PanicInfo) -> ! {
 
     loop {}
 }
+
