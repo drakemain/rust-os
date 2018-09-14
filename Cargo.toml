@@ -7,6 +7,7 @@ authors = ["drakemain <demain1990@gmail.com>"]
 bootloader_precompiled = "^0.2.0"
 volatile = "^0.2.0"
 spin = "^0.4.0"
+array-init = "^0.0.4"
 
 [dependencies.lazy_static]
 version = "^1.0"
